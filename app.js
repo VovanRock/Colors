@@ -1,100 +1,94 @@
-const cols = document.querySelectorAll('.col')
+const colors = document.querySelectorAll(".color");
 
-document.addEventListener('keydown', (event) => {
-  event.preventDefault()
-  if (event.code.toLowerCase() === 'space') {
-    setRandomColors()
+document.addEventListener("keydown", (event) => {
+  event.preventDefault();
+  if (event.code.toLowerCase() == "space") {
+    setRandomColor();
   }
-})
+});
 
-document.addEventListener('click', (event) => {
-  const type = event.target.dataset.type
+document.addEventListener("click", (event) => {
+  const type = event.target.dataset.type;
 
-  if (type === 'lock') {
+  if (type == "lock") {
     const node =
-      event.target.tagName.toLowerCase() === 'i'
+      event.target.tagName.toLowerCase() == "i"
         ? event.target
-        : event.target.children[0]
+        : event.target.children[0];
 
-    node.classList.toggle('fa-lock-open')
-    node.classList.toggle('fa-lock')
-  } else if (type === 'copy') {
-    copyToClickboard(event.target.textContent)
+    node.classList.toggle("fa-lock");
+    node.classList.toggle("fa-lock-open");
+  } else if (type == "copy") {
+    copyToClipboard(event.target.textContent);
   }
-})
+});
 
-function gerenerateRandomColor() {
-  // RGB
-  // #FF0000
-  // #00FF00
-  // #0000FF
+// function generateRandomColor() {
+//   const hexCodes = "012345678ABCDEF";
+//   let color = "#";
+//   for (let i = 0; i < 6; i++) {
+//     color += hexCodes[Math.floor(Math.random() * hexCodes.length)];
+//   }
+//   return color;
+// }
 
-  const hexCodes = '0123456789ABCDEF'
-  let color = ''
-  for (let i = 0; i < 6; i++) {
-    color += hexCodes[Math.floor(Math.random() * hexCodes.length)]
-  }
-  return '#' + color
-}
+function setRandomColor(isInitial) {
+  const colorsHash = isInitial ? getColorsFromLink() : [];
 
-function copyToClickboard(text) {
-  return navigator.clipboard.writeText(text)
-}
-
-function setRandomColors(isInitial) {
-  const colors = isInitial ? getColorsFromHash() : []
-
-  cols.forEach((col, index) => {
-    const isLocked = col.querySelector('i').classList.contains('fa-lock')
-    const text = col.querySelector('h2')
-    const button = col.querySelector('button')
+  colors.forEach((col, index) => {
+    const isLocked = col.querySelector("i").classList.contains("fa-lock");
+    const text = col.querySelector("h2");
+    const button = col.querySelector("button");
 
     if (isLocked) {
-      colors.push(text.textContent)
-      return
+      colorsHash.push(text.textContent);
+      return;
     }
 
     const color = isInitial
-      ? colors[index]
-        ? colors[index]
+      ? colorsHash[index]
+        ? colorsHash[index]
         : chroma.random()
-      : chroma.random()
+      : chroma.random();
 
     if (!isInitial) {
-      colors.push(color)
+      colorsHash.push(color);
     }
 
-    text.textContent = color
-    col.style.background = color
+    text.textContent = color;
+    col.style.background = color;
+    setTextColor(text, color);
+    setTextColor(button, color);
+  });
 
-    setTextColor(text, color)
-    setTextColor(button, color)
-  })
-
-  updateColorsHash(colors)
+  updateColorsHash(colorsHash);
 }
 
 function setTextColor(text, color) {
-  const luminance = chroma(color).luminance()
-  text.style.color = luminance > 0.5 ? 'black' : 'white'
+  const luminance = chroma(color).luminance();
+  text.style.color = luminance > 0.5 ? "black" : "white";
 }
 
-function updateColorsHash(colors = []) {
-  document.location.hash = colors
+function copyToClipboard(text) {
+  return navigator.clipboard.writeText(text);
+}
+
+function updateColorsHash(colorsHash = []) {
+  document.location.hash = colorsHash
     .map((col) => {
-      return col.toString().substring(1)
+      return col.toString().substring(1);
     })
-    .join('-')
+    .join("-");
 }
 
-function getColorsFromHash() {
+function getColorsFromLink() {
   if (document.location.hash.length > 1) {
     return document.location.hash
       .substring(1)
-      .split('-')
-      .map((color) => '#' + color)
+      .split("-")
+      .map((color) => "#" + color);
   }
-  return []
+  return [];
 }
 
-setRandomColors(true)
+setRandomColor(true);
